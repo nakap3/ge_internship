@@ -3,3 +3,5 @@
 ################################################################################
 
 /.vs
+/MonsterBattleCS/MonsterBattleCS/FlatBuffers/obj/Debug/net35
+/MonsterBattleCS/MonsterBattleCS/obj
