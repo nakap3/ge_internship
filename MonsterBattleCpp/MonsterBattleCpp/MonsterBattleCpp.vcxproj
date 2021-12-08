@@ -140,13 +140,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="MonsterBattleCpp.cpp" />
-    <ClCompile Include="util.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="flatbuffers\base.h" />
-    <ClInclude Include="flatbuffers\flatbuffers.h" />
-    <ClInclude Include="flatbuffers\stl_emulation.h" />
-    <ClInclude Include="flatbuffers\util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

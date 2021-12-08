@@ -13,30 +13,10 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="FlatBuffers">
-      <UniqueIdentifier>{2849c604-7b33-4c40-9a80-72fe6ea16bda}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MonsterBattleCpp.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="util.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="flatbuffers\util.h">
-      <Filter>FlatBuffers</Filter>
-    </ClInclude>
-    <ClInclude Include="flatbuffers\flatbuffers.h">
-      <Filter>FlatBuffers</Filter>
-    </ClInclude>
-    <ClInclude Include="flatbuffers\base.h">
-      <Filter>FlatBuffers</Filter>
-    </ClInclude>
-    <ClInclude Include="flatbuffers\stl_emulation.h">
-      <Filter>FlatBuffers</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>
