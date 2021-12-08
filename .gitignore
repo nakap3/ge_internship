@@ -3,5 +3,10 @@
 ################################################################################
 
 /.vs
+/MonsterBattleCS/.vs
 /MonsterBattleCS/MonsterBattleCS/FlatBuffers/obj/Debug/net35
 /MonsterBattleCS/MonsterBattleCS/obj
+/MonsterBattleCS/MonsterBattleCS/bin
+/MonsterBattleCpp/.vs/MonsterBattleCpp/v16
+/MonsterBattleCpp/MonsterBattleCpp/x64
+/MonsterBattleCpp/x64
