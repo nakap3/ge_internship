@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MonsterBattleCS": {
+      "commandName": "Project",
+      "commandLineArgs": "$(ProjectDir)"
+    }
+  }
+}
