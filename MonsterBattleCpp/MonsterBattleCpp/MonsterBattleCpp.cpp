@@ -62,9 +62,10 @@ int main()
 #endif
 
 	// ソート前の状態を表示
+	printf("ソート前\n");
 	for (const auto& monster : monsterList)
 	{
-		printf("%-10s : HP:%3d, ATK:%2d, DEF:%2d\n", monster.name, monster.hp, monster.ap, monster.dp);
+		printf("  %-10s : HP:%3d, ATK:%2d, DEF:%2d\n", monster.name, monster.hp, monster.ap, monster.dp);
 	}
 	printf("\n");
 
@@ -74,9 +75,10 @@ int main()
 	}
 
 	// ソート後の状態を表示
+	printf("ソート後\n");
 	for (const auto& monster : monsterList)
 	{
-		printf("%-10s : HP:%3d, ATK:%2d, DEF:%2d\n", monster.name, monster.hp, monster.ap, monster.dp);
+		printf("  %-10s : HP:%3d, ATK:%2d, DEF:%2d\n", monster.name, monster.hp, monster.ap, monster.dp);
 	}
 	printf("\n");
 }
