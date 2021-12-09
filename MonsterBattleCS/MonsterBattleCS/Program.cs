@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 
 namespace MonsterBattleCS
@@ -57,6 +58,42 @@ namespace MonsterBattleCS
 		// 2体は同時に戦います。同時に力尽きた時は、力尽きた時の体力が大きい方が勝ちです。（例：残り体力が -20 と -5になった場合は、-5の方が勝ち）
 
 
+		static void Attack(MonsterData offense, MonsterData defense)
+		{
+			int damage = offense.ap * (100 - defense.dp) / 100;
+			defense.hp -= damage;
+		}
+
+		static int IsStronger(MonsterData offense, MonsterData defense)
+		{
+			while (offense.hp > 0 && defense.hp > 0)
+			{
+				Attack(offense, defense);
+				Attack(defense, offense);
+			}
+
+			return defense.hp - offense.hp;
+		}
+
+		// Sort を使う場合はこんな感じ
+		static int Battle2(in MonsterData a, in MonsterData b)
+		{
+			var aa = new MonsterData(a.label, a.name, a.hp, a.ap, a.dp);
+			var bb = new MonsterData(b.label, b.name, b.hp, b.ap, b.dp);
+			return IsStronger(aa, bb);
+		}
+
+		public class Battle : IComparer<MonsterData>
+		{
+			public int Compare(MonsterData a, MonsterData b)
+			{
+				var aa = new MonsterData(a.label, a.name, a.hp, a.ap, a.dp);
+				var bb = new MonsterData(b.label, b.name, b.hp, b.ap, b.dp);
+				return IsStronger(aa, bb);
+			}
+		}
+
+
 		/// メイン処理
 		static void Main(string[] args)
 		{
@@ -82,7 +119,13 @@ namespace MonsterBattleCS
 
 			// monsterList を強い順に並べ替える処理をココに実装しよう！
 			{
+				// Sort を使う場合はこんな感じ
+				// でもSortは非安定ソートなので、今回は利用しない
+				//monsterList.Sort((a, b) => { return Battle2(a, b); });
 
+				// 安定ソートは Linq の OrderBy で実現できる
+				var battle = new Battle();
+				monsterList = monsterList.OrderBy(e => e, battle).ToList();
 			}
 
 			// ソート後の状態を表示

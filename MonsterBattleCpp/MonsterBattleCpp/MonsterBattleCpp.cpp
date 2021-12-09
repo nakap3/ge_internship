@@ -44,6 +44,31 @@ static constexpr MonsterData s_monsterList[] =
 // 2体は同時に戦います。同時に力尽きた時は、力尽きた時の体力が大きい方が勝ちです。（例：残り体力が -20 と -5になった場合は、-5の方が勝ち）
 
 
+inline void Attack(MonsterData& offense, MonsterData& defense)
+{
+	int damage = offense.ap * (100 - defense.dp) / 100;
+	defense.hp -= damage;
+}
+
+bool IsStronger(MonsterData& a, MonsterData& b)
+{
+	while (a.hp > 0 && b.hp > 0)
+	{
+		Attack(a, b);
+		Attack(b, a);
+	}
+
+	return a.hp >= b.hp;
+}
+
+bool Battle(const MonsterData& a, const MonsterData& b)
+{
+	auto aa = a;
+	auto bb = b;
+	return IsStronger(aa, bb);
+}
+
+
 int main()
 {
 	// コードページ(文字コード)を UTF-8 にするおまじない
@@ -71,7 +96,9 @@ int main()
 
 	// monsterList を強い順に並べ替える処理をココに実装しよう！
 	{
-
+		// ソート
+		// std::sort は非安定ソートなので、今回は stable_sort を使う
+		std::stable_sort(monsterList.begin(), monsterList.end(), [](const auto& a, const auto& b) { return Battle(a, b); });
 	}
 
 	// ソート後の状態を表示
