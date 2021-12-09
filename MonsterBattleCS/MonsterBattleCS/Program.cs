@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
-// 追加部分
 using System.IO;
 using FlatBuffers;
-//using Data;
-// ここまで
+
 
 namespace MonsterBattleCS
 {
 	class Program
 	{
-		// FlatBuffers を使うなら true にする
+		// FlatBuffersを使う段階になったら、この値を true にしよう！
 		static readonly bool USE_FLATBUFFERS = true;
 
 
@@ -37,6 +36,7 @@ namespace MonsterBattleCS
 		/// モンスターリスト
 		static readonly List<MonsterData> s_monsterList = new List<MonsterData>()
 		{
+			//               label        name           hp      ap      dp
 			new MonsterData("demon",    "デーモン　",    800,    40,     25),
 			new MonsterData("dragon",   "ドラゴン　",    900,    45,     10),
 			new MonsterData("ghost",    "ゴースト　",    500,    20,     25),
@@ -65,7 +65,6 @@ namespace MonsterBattleCS
 		{
 			int damage = offense.ap * (100 - defense.dp) / 100;
 			defense.hp -= damage;
-			//Console.WriteLine("  {0, -10} の攻撃！ {1, -10} に {2:d3} のダメージ！ 残りHP({3:d4})\n", offense.name, defense.name, damage, defense.hp);
 		}
 
 		static int IsStronger(MonsterData offense, MonsterData defense)
@@ -79,25 +78,38 @@ namespace MonsterBattleCS
 			return defense.hp - offense.hp;
 		}
 
-		static int Battle(in MonsterData a, in MonsterData b)
+		// Sort を使う場合はこんな感じ
+		static int Battle2(in MonsterData a, in MonsterData b)
 		{
-			//Console.WriteLine("{0} vs {1}", a.name, b.name);
-
 			var aa = new MonsterData(a.label, a.name, a.hp, a.ap, a.dp);
 			var bb = new MonsterData(b.label, b.name, b.hp, b.ap, b.dp);
 			return IsStronger(aa, bb);
+		}
+
+		public class Battle : IComparer<MonsterData>
+		{
+			public int Compare(MonsterData a, MonsterData b)
+			{
+				var aa = new MonsterData(a.label, a.name, a.hp, a.ap, a.dp);
+				var bb = new MonsterData(b.label, b.name, b.hp, b.ap, b.dp);
+				return IsStronger(aa, bb);
+			}
 		}
 
 
 		/// メイン処理
 		static void Main(string[] args)
 		{
-
 			var monsterList = new List<MonsterData>();
 
 			if (USE_FLATBUFFERS)
 			{
-				// flatbuffersでバイナリにシリアライズされたデータを読み込んで、monsterListを構築する
+				// FlatBuffersを使う段階になったら、ここにバイナリにシリアライズされたデータを読み込んで、 monsterList を構築する処理を実装しよう！
+
+				// ここでは、引数でカレントディレクトリを貰うようにしている
+				// 引数の設定は、プロジェクトのプロパティのデバッグのアプリケーション引数に $(ProjectDir) を設定すればよい
+				// バイナリファイルの読み込み方はこれ以外にもいろんな方法があるので好きな方法を使えばよい
+				// もちろん、実際のゲームアプリでは引数を指定するようなやり方は使えないので注意！
 				System.IO.Directory.SetCurrentDirectory(args[0]);
 				byte[] data = File.ReadAllBytes("MonsterData.mdfb");
 
@@ -112,20 +124,28 @@ namespace MonsterBattleCS
 			}
 			else
 			{
+				// FlatBuffersを使わない段階では、ココで monsterList が構築される。
 				monsterList = new List<MonsterData>(s_monsterList);
 			}
-			
+
 			// ソート前の状態を表示
 			Console.WriteLine("ソート前");
 			foreach (var monster in monsterList)
 			{
 				Console.WriteLine("  {0, -10} : HP:{1, 3}, ATK:{2, 2}, DEF:{3, 2}", monster.name, monster.hp, monster.ap, monster.dp);
 			}
-			 
 			Console.WriteLine("");
 
-			// ソート
-			monsterList.Sort((a, b) => { return Battle(a, b); });
+			// monsterList を強い順に並べ替える処理をココに実装しよう！
+			{
+				// Sort を使う場合はこんな感じ
+				// でもSortは非安定ソートなので、今回は利用しない
+				//monsterList.Sort((a, b) => { return Battle2(a, b); });
+
+				// 安定ソートは Linq の OrderBy で実現できる
+				var battle = new Battle();
+				monsterList = monsterList.OrderBy(e => e, battle).ToList();
+			}
 
 			// ソート後の状態を表示
 			Console.WriteLine("ソート後");
@@ -133,7 +153,7 @@ namespace MonsterBattleCS
 			{
 				Console.WriteLine("  {0, -10} : HP:{1, 3}, ATK:{2, 2}, DEF:{3, 2}", monster.name, monster.hp, monster.ap, monster.dp);
 			}
+			Console.WriteLine("");
 		}
 	}
 };
-
