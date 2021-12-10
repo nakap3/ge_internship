@@ -38,7 +38,7 @@
       "hp":"400",
       "ap":"85",
       "dp":"20",
-      "hand":"scissors"
+      "hand":"paper"
     },
     {
       "label":"slime",
@@ -62,7 +62,7 @@
       "hp":"300",
       "ap":"20",
       "dp":"30",
-      "hand":"paper"
+      "hand":"scissors"
     }
   ]
 }

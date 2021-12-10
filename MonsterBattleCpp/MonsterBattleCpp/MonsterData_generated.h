@@ -14,7 +14,7 @@ struct FbMonsterDataBuilder;
 struct FbMonsterList;
 struct FbMonsterListBuilder;
 
-enum Hand : int8_t {
+enum Hand : int16_t {
   Hand_stone = 0,
   Hand_paper = 1,
   Hand_scissors = 2,
@@ -73,7 +73,7 @@ struct FbMonsterData FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     return GetField<int16_t>(VT_DP, 0);
   }
   Data::Hand hand() const {
-    return static_cast<Data::Hand>(GetField<int8_t>(VT_HAND, 0));
+    return static_cast<Data::Hand>(GetField<int16_t>(VT_HAND, 0));
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -84,7 +84,7 @@ struct FbMonsterData FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            VerifyField<int16_t>(verifier, VT_HP) &&
            VerifyField<int16_t>(verifier, VT_AP) &&
            VerifyField<int16_t>(verifier, VT_DP) &&
-           VerifyField<int8_t>(verifier, VT_HAND) &&
+           VerifyField<int16_t>(verifier, VT_HAND) &&
            verifier.EndTable();
   }
 };
@@ -109,7 +109,7 @@ struct FbMonsterDataBuilder {
     fbb_.AddElement<int16_t>(FbMonsterData::VT_DP, dp, 0);
   }
   void add_hand(Data::Hand hand) {
-    fbb_.AddElement<int8_t>(FbMonsterData::VT_HAND, static_cast<int8_t>(hand), 0);
+    fbb_.AddElement<int16_t>(FbMonsterData::VT_HAND, static_cast<int16_t>(hand), 0);
   }
   explicit FbMonsterDataBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -133,10 +133,10 @@ inline flatbuffers::Offset<FbMonsterData> CreateFbMonsterData(
   FbMonsterDataBuilder builder_(_fbb);
   builder_.add_name(name);
   builder_.add_label(label);
+  builder_.add_hand(hand);
   builder_.add_dp(dp);
   builder_.add_ap(ap);
   builder_.add_hp(hp);
-  builder_.add_hand(hand);
   return builder_.Finish();
 }
 

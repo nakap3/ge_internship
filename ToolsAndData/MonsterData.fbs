@@ -1,6 +1,6 @@
 ﻿namespace Data;
 
-enum Hand : byte { stone, paper, scissors }
+enum Hand : short { stone, paper, scissors }
 
 table FbMonsterData
 {

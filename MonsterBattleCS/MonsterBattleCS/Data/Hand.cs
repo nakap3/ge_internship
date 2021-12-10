@@ -5,7 +5,7 @@
 namespace Data
 {
 
-public enum Hand : sbyte
+public enum Hand : short
 {
   stone = 0,
   paper = 1,

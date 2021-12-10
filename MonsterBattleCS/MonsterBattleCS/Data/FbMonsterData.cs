@@ -36,7 +36,7 @@ public struct FbMonsterData : IFlatbufferObject
   public short Hp { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetShort(o + __p.bb_pos) : (short)0; } }
   public short Ap { get { int o = __p.__offset(10); return o != 0 ? __p.bb.GetShort(o + __p.bb_pos) : (short)0; } }
   public short Dp { get { int o = __p.__offset(12); return o != 0 ? __p.bb.GetShort(o + __p.bb_pos) : (short)0; } }
-  public Data.Hand Hand { get { int o = __p.__offset(14); return o != 0 ? (Data.Hand)__p.bb.GetSbyte(o + __p.bb_pos) : Data.Hand.stone; } }
+  public Data.Hand Hand { get { int o = __p.__offset(14); return o != 0 ? (Data.Hand)__p.bb.GetShort(o + __p.bb_pos) : Data.Hand.stone; } }
 
   public static Offset<Data.FbMonsterData> CreateFbMonsterData(FlatBufferBuilder builder,
       StringOffset labelOffset = default(StringOffset),
@@ -48,10 +48,10 @@ public struct FbMonsterData : IFlatbufferObject
     builder.StartTable(6);
     FbMonsterData.AddName(builder, nameOffset);
     FbMonsterData.AddLabel(builder, labelOffset);
+    FbMonsterData.AddHand(builder, hand);
     FbMonsterData.AddDp(builder, dp);
     FbMonsterData.AddAp(builder, ap);
     FbMonsterData.AddHp(builder, hp);
-    FbMonsterData.AddHand(builder, hand);
     return FbMonsterData.EndFbMonsterData(builder);
   }
 
@@ -61,7 +61,7 @@ public struct FbMonsterData : IFlatbufferObject
   public static void AddHp(FlatBufferBuilder builder, short hp) { builder.AddShort(2, hp, 0); }
   public static void AddAp(FlatBufferBuilder builder, short ap) { builder.AddShort(3, ap, 0); }
   public static void AddDp(FlatBufferBuilder builder, short dp) { builder.AddShort(4, dp, 0); }
-  public static void AddHand(FlatBufferBuilder builder, Data.Hand hand) { builder.AddSbyte(5, (sbyte)hand, 0); }
+  public static void AddHand(FlatBufferBuilder builder, Data.Hand hand) { builder.AddShort(5, (short)hand, 0); }
   public static Offset<Data.FbMonsterData> EndFbMonsterData(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     return new Offset<Data.FbMonsterData>(o);

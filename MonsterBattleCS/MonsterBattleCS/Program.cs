@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 using System.IO;
 using FlatBuffers;
@@ -17,19 +16,21 @@ namespace MonsterBattleCS
 		/// モンスターデータ
 		public class MonsterData
 		{
-			public string label;           //< ラベル
-			public string name;            //< 名前
-			public int hp;                 //< 体力
-			public int ap;                 //< 攻撃力
-			public int dp;                 //< 防御力
+			public string label;			//< ラベル
+			public string name;				//< 名前
+			public int hp;					//< 体力
+			public int ap;					//< 攻撃力
+			public int dp;					//< 防御力
+			public Data.Hand hand;          //< じゃんけん属性
 
-			public MonsterData(string label, string name, int hp, int ap, int dp)
+			public MonsterData(string label, string name, int hp, int ap, int dp, Data.Hand hand = Data.Hand.stone)
 			{
 				this.label = label;
 				this.name = name;
 				this.hp = hp;
 				this.ap = ap;
 				this.dp = dp;
+				this.hand = hand;
 			}
 		};
 
@@ -63,7 +64,9 @@ namespace MonsterBattleCS
 
 		static void Attack(MonsterData offense, MonsterData defense)
 		{
-			int damage = offense.ap * (100 - defense.dp) / 100;
+			int ap = offense.ap;
+			if ((offense.hand + 3 - defense.hand) % 3 == 1) ap = ap * 3 / 2;
+			int damage = ap * (100 - defense.dp) / 100;
 			defense.hp -= damage;
 		}
 
@@ -75,25 +78,14 @@ namespace MonsterBattleCS
 				Attack(defense, offense);
 			}
 
-			return defense.hp - offense.hp;
+			return offense.hp <= 0 && defense.hp <= 0 ? 0 : offense.hp - defense.hp;
 		}
 
-		// Sort を使う場合はこんな感じ
-		static int Battle2(in MonsterData a, in MonsterData b)
+		static int Battle(in MonsterData a, in MonsterData b)
 		{
-			var aa = new MonsterData(a.label, a.name, a.hp, a.ap, a.dp);
-			var bb = new MonsterData(b.label, b.name, b.hp, b.ap, b.dp);
+			var aa = new MonsterData(a.label, a.name, a.hp, a.ap, a.dp, a.hand);
+			var bb = new MonsterData(b.label, b.name, b.hp, b.ap, b.dp, b.hand);
 			return IsStronger(aa, bb);
-		}
-
-		public class Battle : IComparer<MonsterData>
-		{
-			public int Compare(MonsterData a, MonsterData b)
-			{
-				var aa = new MonsterData(a.label, a.name, a.hp, a.ap, a.dp);
-				var bb = new MonsterData(b.label, b.name, b.hp, b.ap, b.dp);
-				return IsStronger(aa, bb);
-			}
 		}
 
 
@@ -118,7 +110,9 @@ namespace MonsterBattleCS
 				for (int i = 0; i < fbMonsterList.MonsterListLength; ++i)
 				{
 					var fbMonsterData = fbMonsterList.MonsterList(i).Value;
-					var monster = new MonsterData(fbMonsterData.Label, fbMonsterData.Name, fbMonsterData.Hp, fbMonsterData.Ap, fbMonsterData.Dp);
+					var monster = new MonsterData(fbMonsterData.Label, fbMonsterData.Name,
+						fbMonsterData.Hp, fbMonsterData.Ap, fbMonsterData.Dp,
+						fbMonsterData.Hand);
 					monsterList.Add(monster);
 				}
 			}
@@ -128,32 +122,54 @@ namespace MonsterBattleCS
 				monsterList = new List<MonsterData>(s_monsterList);
 			}
 
-			// ソート前の状態を表示
-			Console.WriteLine("ソート前");
+			// じゃんけん属性も含めて表示元の状態を表示
 			foreach (var monster in monsterList)
 			{
-				Console.WriteLine("  {0, -10} : HP:{1, 3}, ATK:{2, 2}, DEF:{3, 2}", monster.name, monster.hp, monster.ap, monster.dp);
+				Console.WriteLine("  {0, -10} : HP:{1, 3}, ATK:{2, 2}, DEF:{3, 2} {4}", monster.name, monster.hp, monster.ap, monster.dp, monster.hand.ToString());
 			}
-			Console.WriteLine("");
+			Console.WriteLine();
 
-			// monsterList を強い順に並べ替える処理をココに実装しよう！
+			// 総当たり戦の結果を格納する二次元配列を用意
+			var size = monsterList.Count;
+			var winMatrix = new int[size, size];
+			// 総当たり戦
+			for (int offense = 0; offense < (int)size; ++offense)
 			{
-				// Sort を使う場合はこんな感じ
-				// でもSortは非安定ソートなので、今回は利用しない
-				//monsterList.Sort((a, b) => { return Battle2(a, b); });
-
-				// 安定ソートは Linq の OrderBy で実現できる
-				var battle = new Battle();
-				monsterList = monsterList.OrderBy(e => e, battle).ToList();
+				for (int defense = 0; defense < (int)size; ++defense)
+				{
+					winMatrix[offense, defense] = Battle(monsterList[offense], monsterList[defense]);
+				}
 			}
-
-			// ソート後の状態を表示
-			Console.WriteLine("ソート後");
-			foreach (var monster in monsterList)
+			// 結果表を表示
+			// と同時に優勝者もココで調べておく
+			var winners = new List<int>();
+			int high = 0;
+			for (int offense = 0; offense < size; ++offense)
 			{
-				Console.WriteLine("  {0, -10} : HP:{1, 3}, ATK:{2, 2}, DEF:{3, 2}", monster.name, monster.hp, monster.ap, monster.dp);
+				string str = "";
+				int score = 0;
+				for (int defense = 0; defense < size; ++defense)
+				{
+					var win = winMatrix[offense, defense];
+					score += win == 0 ? 1 : win > 0 ? 3 : 0;
+					str += win == 0 ? offense == defense ? "＼" : "・" : win > 0 ? "〇" : "×";
+				}
+				Console.WriteLine("　{0, -10} : {1} : {2, 3}点", monsterList[offense].name, str, score);
+				// 暫定優勝者の更新処理
+				if (score > high)
+				{
+					winners.Clear();
+					high = score;
+				}
+				if (score >= high) winners.Add(offense);
 			}
-			Console.WriteLine("");
+			// 優勝者を表示
+			Console.Write("\n優勝は {0}点の", high);
+			foreach (var winner in winners)
+			{
+				Console.Write(" {0} ", monsterList[winner].name);
+			}
+			Console.WriteLine();
 		}
 	}
 };

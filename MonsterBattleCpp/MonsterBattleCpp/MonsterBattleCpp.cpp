@@ -18,6 +18,7 @@ struct MonsterData
 	int hp;                 //< 体力
 	int ap;                 //< 攻撃力
 	int dp;                 //< 防御力
+	Data::Hand hand;		//< じゃんけん属性
 };
 
 /// モンスターリスト
@@ -49,22 +50,26 @@ static constexpr MonsterData s_monsterList[] =
 
 inline void Attack(MonsterData& offense, MonsterData& defense)
 {
-	int damage = offense.ap * (100 - defense.dp) / 100;
+	int ap = offense.ap;
+	// 整数で1.5倍なら3かけて2で割ると誤差の問題も気にしないで済む
+	// 逆に言うと、小数(float, double)を使う場合は、誤差を気にする必要がある！
+	if ((offense.hand + 3 - defense.hand) % 3 == 1) ap = ap * 2 / 2;
+	int damage = ap * (100 - defense.dp) / 100;
 	defense.hp -= damage;
 }
 
-bool IsStronger(MonsterData& a, MonsterData& b)
+int IsStronger(MonsterData& a, MonsterData& b)
 {
 	while (a.hp > 0 && b.hp > 0)
 	{
 		Attack(a, b);
 		Attack(b, a);
 	}
-
-	return a.hp >= b.hp;
+	// 同時に死んだら引き分けなんで、単純に比較結果を返したらダメ
+	return a.hp <=0 && b.hp <= 0 ? 0 : a.hp - b.hp;
 }
 
-bool Battle(const MonsterData& a, const MonsterData& b)
+int Battle(const MonsterData& a, const MonsterData& b)
 {
 	auto aa = a;
 	auto bb = b;
@@ -95,6 +100,7 @@ int main()
 			monster.hp = it->hp();
 			monster.ap = it->ap();
 			monster.dp = it->dp();
+			monster.hand = it->hand();
 			monsterList.push_back(monster);
 		}
 	}
@@ -104,26 +110,55 @@ int main()
 
 #endif
 
-	// ソート前の状態を表示
-	printf(u8"ソート前\n");
+	// じゃんけん属性も含めて表示元の状態を表示
+	static const char* s_hands[] = { u8"ぐー", u8"ぱー", u8"ちょき" };
 	for (const auto& monster : monsterList)
 	{
-		printf("  %-10s : HP:%3d, ATK:%2d, DEF:%2d\n", monster.name, monster.hp, monster.ap, monster.dp);
+		printf(u8"  %-10s : HP:%3d, ATK:%2d, DEF:%2d, %s\n", monster.name, monster.hp, monster.ap, monster.dp, s_hands[monster.hand]);
 	}
 	printf("\n");
 
-	// monsterList を強い順に並べ替える処理をココに実装しよう！
+	// 総当たり戦の結果を格納する二次元配列を用意(今回は二重vectorにした)
+	auto size = monsterList.size();
+	std::vector<std::vector<int>> winMatrix(size, std::vector<int>(size));
+	// 総当たり戦
+	for (int offense = 0; offense < (int)size; ++offense)
 	{
-		// ソート
-		// std::sort は非安定ソートなので、今回は stable_sort を使う
-		std::stable_sort(monsterList.begin(), monsterList.end(), [](const auto& a, const auto& b) { return Battle(a, b); });
+		for (int defense = 0; defense < (int)size; ++defense)
+		{
+			// メモ：
+			// 同種モンスター同士が戦ったら常に引き分けるはずなんで、戦わないようにすれば処理負荷が下がるかも
+			winMatrix[offense][defense] = Battle(monsterList[offense], monsterList[defense]);
+		}
 	}
-
-	// ソート後の状態を表示
-	printf(u8"ソート後\n");
-	for (const auto& monster : monsterList)
+	// 結果表を表示
+	// と同時に優勝者もココで調べておく
+	int high = -1;
+	std::vector<int> winners;
+	for (int offense = 0; offense < (int)size; ++offense)
 	{
-		printf("  %-10s : HP:%3d, ATK:%2d, DEF:%2d\n", monster.name, monster.hp, monster.ap, monster.dp);
+		std::string str;
+		int score = 0;
+		for (int defense = 0; defense < (int)size; ++defense)
+		{
+			auto win = winMatrix[offense][defense];
+			score += win == 0 ? 1 : win > 0 ? 3 : 0;
+			str.append(win == 0 ? offense == defense ? u8"＼" : u8"・" : win > 0 ? u8"〇" : u8"×");
+		}
+		printf(u8"　%-10s : %s : %3d点\n", monsterList[offense].name, str.c_str(), score);
+		// 暫定優勝者の更新処理
+		if (score > high)
+		{
+			winners.clear();
+			high = score;
+		}
+		if (score >= high) winners.push_back(offense);
+	}
+	// 優勝者を表示
+	printf(u8"\n優勝は %d点の", high);
+	for (auto winner : winners)
+	{
+		printf(u8" %s ", monsterList[winner].name);
 	}
 	printf("\n");
 }
