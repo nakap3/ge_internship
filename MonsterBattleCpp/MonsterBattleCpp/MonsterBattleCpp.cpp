@@ -1,5 +1,4 @@
 ﻿#include <vector>
-#include <algorithm>
 #include <Windows.h>
 
 
@@ -45,30 +44,6 @@ static constexpr MonsterData s_monsterList[] =
 // また、力尽きた時の体力が両者ともに同じ時は、リストの先に並んでた方が勝ちとします。
 
 
-inline void Attack(MonsterData& offense, MonsterData& defense)
-{
-	int damage = offense.ap * (100 - defense.dp) / 100;
-	defense.hp -= damage;
-}
-
-bool IsStronger(MonsterData& a, MonsterData& b)
-{
-	while (a.hp > 0 && b.hp > 0)
-	{
-		Attack(a, b);
-		Attack(b, a);
-	}
-	return a.hp > b.hp;
-}
-
-bool Battle(const MonsterData& a, const MonsterData& b)
-{
-	auto aa = a;
-	auto bb = b;
-	return IsStronger(aa, bb);
-}
-
-
 int main()
 {
 	// コードページ(文字コード)を UTF-8 にするおまじない
@@ -95,9 +70,6 @@ int main()
 
 	// monsterList を強い順に並べ替える処理をココに実装しよう！
 	{
-		// ソート
-		// std::sort は非安定ソートなので、今回は stable_sort を使う
-		std::stable_sort(monsterList.begin(), monsterList.end(), [](const auto& a, const auto& b) { return Battle(a, b); });
 	}
 
 	// ソート後の状態を表示
