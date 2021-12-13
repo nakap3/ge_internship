@@ -20,15 +20,15 @@ struct MonsterData
 /// モンスターリスト
 static constexpr MonsterData s_monsterList[] =
 {
-	// label         name           hp      ap      dp
-	{ "demon",      "デーモン　", 	800,    40, 	25  },
-	{ "dragon", 	"ドラゴン　", 	900,	45, 	10  },
-	{ "ghost",  	"ゴースト　", 	500,    20, 	25  },
-	{ "hapry",  	"ハーピィ　", 	600,	30, 	20  },
-	{ "ninja",	    "ニンジャ　",	400,	85, 	20  },
-	{ "slime",	    "スライム　",	200,	10,	    90  },
-	{ "vampire",	"バンパイア",	700,	15,	    60  },
-	{ "zombie",	    "ゾンビ　　",   300,	20,	    30  }
+	// label            name            hp      ap      dp
+	{ "demon",      u8"デーモン　", 	800,    40, 	25  },
+	{ "dragon", 	u8"ドラゴン　", 	900,	45, 	10  },
+	{ "ghost",  	u8"ゴースト　", 	500,    20, 	25  },
+	{ "hapry",  	u8"ハーピィ　", 	600,	30, 	20  },
+	{ "ninja",	    u8"ニンジャ　",		400,	85, 	20  },
+	{ "slime",	    u8"スライム　",		200,	10,	    90  },
+	{ "vampire",	u8"バンパイア",		700,	15,	    60  },
+	{ "zombie",	    u8"ゾンビ　　",		300,	20,	    30  }
 };
 
 // モンスターを強い順に並べなさい
@@ -72,8 +72,7 @@ bool Battle(const MonsterData& a, const MonsterData& b)
 int main()
 {
 	// コードページ(文字コード)を UTF-8 にするおまじない
-	// Windows10のバージョンによっては文字化けすることがあるので、文字化けするようならこれをコメントアウトしてみてください。
-	//SetConsoleOutputCP(65001);
+	SetConsoleOutputCP(65001);
 
 
 #if defined(USE_FLATBUFFERS) && USE_FLATBUFFERS
@@ -87,10 +86,10 @@ int main()
 #endif
 
 	// ソート前の状態を表示
-	printf("ソート前\n");
+	printf(u8"ソート前\n");
 	for (const auto& monster : monsterList)
 	{
-		printf("  %-10s : HP:%3d, ATK:%2d, DEF:%2d\n", monster.name, monster.hp, monster.ap, monster.dp);
+		printf(u8"  %-10s : HP:%3d, ATK:%2d, DEF:%2d\n", monster.name, monster.hp, monster.ap, monster.dp);
 	}
 	printf("\n");
 
@@ -102,10 +101,10 @@ int main()
 	}
 
 	// ソート後の状態を表示
-	printf("ソート後\n");
+	printf(u8"ソート後\n");
 	for (const auto& monster : monsterList)
 	{
-		printf("  %-10s : HP:%3d, ATK:%2d, DEF:%2d\n", monster.name, monster.hp, monster.ap, monster.dp);
+		printf(u8"  %-10s : HP:%3d, ATK:%2d, DEF:%2d\n", monster.name, monster.hp, monster.ap, monster.dp);
 	}
 	printf("\n");
 }
