@@ -54,7 +54,7 @@ inline void Attack(MonsterData& offense, MonsterData& defense)
 	int ap = offense.ap;
 	// 整数で1.5倍なら3かけて2で割ると誤差の問題も気にしないで済む
 	// 逆に言うと、小数(float, double)を使う場合は、誤差を気にする必要がある！
-	if ((offense.hand + 3 - defense.hand) % 3 == 1) ap = ap * 2 / 2;
+	if ((offense.hand + 3 - defense.hand) % 3 == 1) ap = ap * 3 / 2;
 	int damage = ap * (100 - defense.dp) / 100;
 	defense.hp -= damage;
 }
